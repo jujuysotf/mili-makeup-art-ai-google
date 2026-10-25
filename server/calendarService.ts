@@ -5,6 +5,8 @@ import path from 'path';
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'jujuysotf@gmail.com';
 const OPEN_HOUR = 9;
 const CLOSE_HOUR = 22;
+const TIMEZONE = 'America/Argentina/Tucuman';
+const TIMEZONE_OFFSET = '-03:00';
 
 interface BookingPayload {
   serviceId: string;
@@ -63,21 +65,58 @@ function getAuthClient() {
   return null;
 }
 
-export function isCalendarConfigured(): boolean {
-  return getAuthClient() !== null;
-}
-
 export async function getCalendarStatus() {
-  const configured = isCalendarConfigured();
-  return {
-    configured,
+  const auth = getAuthClient();
+  const base = {
     calendarId: CALENDAR_ID,
     openHour: OPEN_HOUR,
     closeHour: CLOSE_HOUR,
-    message: configured
-      ? 'Google Calendar conectado correctamente con cuenta de servicio.'
-      : 'Modo simulación activo (agrega GOOGLE_SERVICE_ACCOUNT_KEY o google-credentials.json para sincronizar en vivo).',
   };
+
+  if (!auth) {
+    return {
+      ...base,
+      configured: false,
+      connected: false,
+      message: 'Modo simulación activo (agrega GOOGLE_SERVICE_ACCOUNT_KEY o google-credentials.json para sincronizar en vivo).',
+    };
+  }
+
+  try {
+    if (process.env.ALLOW_INSECURE_TLS === '1') {
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+    }
+    const calendar = google.calendar({ version: 'v3', auth });
+    const today = new Date().toISOString().split('T')[0];
+    const eventsRes = await calendar.events.list({
+      calendarId: CALENDAR_ID,
+      timeMin: new Date(`${today}T00:00:00-03:00`).toISOString(),
+      timeMax: new Date(`${today}T23:59:59-03:00`).toISOString(),
+      singleEvents: true,
+      orderBy: 'startTime',
+      maxResults: 50,
+    });
+    return {
+      ...base,
+      configured: true,
+      connected: true,
+      busySlotsTodayCount: eventsRes.data.items?.length ?? 0,
+      message: `Google Calendar API conectado con ${CALENDAR_ID}`,
+    };
+  } catch (err: any) {
+    const message = err?.message || 'Error al conectar con Google Calendar API';
+    console.error('Error in /api/calendar/status:', message);
+    return {
+      ...base,
+      configured: true,
+      connected: false,
+      error: message,
+      message,
+      hint: String(message).includes('self-signed certificate')
+        ? 'En esta PC hay un proxy/antivirus. Agregá ALLOW_INSECURE_TLS=1 al .env (solo local) y reiniciá.'
+        : undefined,
+    };
+  }
 }
 
 export async function getAvailableSlots(dateStr: string, durationMinutes: number): Promise<string[]> {
@@ -95,37 +134,41 @@ export async function getAvailableSlots(dateStr: string, durationMinutes: number
   const auth = getAuthClient();
   const bookedIntervals: { start: number; end: number }[] = [];
 
-  // Agregar eventos en memoria local primero
   for (const b of inMemoryBookings) {
     if (b.date === dateStr) {
-      const [sh, sm] = b.time.split(':').map(Number);
-      const startM = sh * 60 + sm;
-      bookedIntervals.push({ start: startM, end: startM + b.durationMinutes });
+      const start = new Date(`${b.date}T${b.time}:00${TIMEZONE_OFFSET}`).getTime();
+      bookedIntervals.push({ start, end: start + b.durationMinutes * 60 * 1000 });
     }
   }
 
   if (auth) {
     try {
       const calendar = google.calendar({ version: 'v3', auth });
-      const timeMin = new Date(`${dateStr}T00:00:00-03:00`).toISOString();
-      const timeMax = new Date(`${dateStr}T23:59:59-03:00`).toISOString();
+      const timeMin = `${dateStr}T00:00:00${TIMEZONE_OFFSET}`;
+      const timeMax = `${dateStr}T23:59:59${TIMEZONE_OFFSET}`;
 
       const eventsRes = await calendar.events.list({
         calendarId: CALENDAR_ID,
         timeMin,
         timeMax,
+        timeZone: TIMEZONE,
         singleEvents: true,
         orderBy: 'startTime',
       });
 
       const events = eventsRes.data.items || [];
       for (const ev of events) {
+        if (ev.status === 'cancelled') continue;
         if (ev.start?.dateTime && ev.end?.dateTime) {
-          const startDate = new Date(ev.start.dateTime);
-          const endDate = new Date(ev.end.dateTime);
-          const startM = startDate.getHours() * 60 + startDate.getMinutes();
-          const endM = endDate.getHours() * 60 + endDate.getMinutes();
-          bookedIntervals.push({ start: startM, end: endM });
+          bookedIntervals.push({
+            start: new Date(ev.start.dateTime).getTime(),
+            end: new Date(ev.end.dateTime).getTime(),
+          });
+        } else if (ev.start?.date) {
+          bookedIntervals.push({
+            start: new Date(`${ev.start.date}T00:00:00${TIMEZONE_OFFSET}`).getTime(),
+            end: new Date(`${ev.start.date}T23:59:59${TIMEZONE_OFFSET}`).getTime(),
+          });
         }
       }
     } catch (err) {
@@ -133,16 +176,10 @@ export async function getAvailableSlots(dateStr: string, durationMinutes: number
     }
   }
 
-  // Filtrar slots que se solapen con algún intervalo reservado
   const freeSlots = allSlots.filter((slot) => {
-    const [h, m] = slot.split(':').map(Number);
-    const candidateStart = h * 60 + m;
-    const candidateEnd = candidateStart + durationMinutes;
-
-    const hasOverlap = bookedIntervals.some((b) => {
-      return candidateStart < b.end && candidateEnd > b.start;
-    });
-
+    const candidateStart = new Date(`${dateStr}T${slot}:00${TIMEZONE_OFFSET}`).getTime();
+    const candidateEnd = candidateStart + durationMinutes * 60 * 1000;
+    const hasOverlap = bookedIntervals.some((b) => candidateStart < b.end && candidateEnd > b.start);
     return !hasOverlap;
   });
 
