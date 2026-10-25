@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Logo } from './Logo';
 import { BUSINESS_INFO } from '../data/content';
+import { WhatsAppIcon } from './WhatsAppIcon';
 import {
   Calendar,
   Clock,
@@ -67,7 +68,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 transition-all duration-300">
+    <header
+      data-sector="SECTOR 1: Encabezado y Navegación"
+      className="fixed top-0 left-0 right-0 z-40 transition-all duration-300"
+    >
       {/* Top Banner Informativo (Visible en desktop) */}
       <div className="hidden lg:block bg-[#1A1A1A] text-white/90 text-xs py-1.5 px-6 border-b border-white/10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -87,9 +91,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
               href={`https://wa.me/${BUSINESS_INFO.phoneRaw}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-white/90 hover:text-[#F4A7C1] transition-colors"
+              className="flex items-center gap-1.5 text-white/90 hover:text-[#F4A7C1] transition-colors"
             >
-              <Phone className="w-3.5 h-3.5 text-[#25D366]" />
+              <WhatsAppIcon className="w-3.5 h-3.5" />
               <span>{BUSINESS_INFO.phoneDisplay}</span>
             </a>
             <span className="text-white/30">|</span>
@@ -204,9 +208,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
                   href={`https://wa.me/${BUSINESS_INFO.phoneRaw}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 hover:text-[#1A1A1A]"
+                  className="flex items-center gap-1.5 hover:text-[#1A1A1A] font-medium"
                 >
-                  <Phone className="w-4 h-4 text-[#25D366]" /> WhatsApp
+                  <WhatsAppIcon className="w-4 h-4" /> WhatsApp
                 </a>
                 <a
                   href={BUSINESS_INFO.instagram}

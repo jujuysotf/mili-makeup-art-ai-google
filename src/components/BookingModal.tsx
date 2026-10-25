@@ -18,6 +18,7 @@ import {
 } from '../utils/dateUtils';
 import { getBookingConfirmationWhatsAppUrl } from '../utils/whatsapp';
 import { downloadIcsFile } from '../utils/calendar';
+import { WhatsAppIcon } from './WhatsAppIcon';
 import confetti from 'canvas-confetti';
 import {
   X,
@@ -283,7 +284,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div
+      data-sector="SECTOR 13: Modal de Gestión de Turnos"
+      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+    >
       <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-[#E7D5DB] overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header Modal */}
         <div className="p-5 sm:p-6 bg-gradient-to-r from-[#FBF4F6] via-white to-[#FBF4F6] border-b border-[#E7D5DB] flex items-center justify-between shrink-0">
@@ -805,9 +809,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                   href={getBookingConfirmationWhatsAppUrl(confirmedBooking)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#25D366] text-white text-xs sm:text-sm font-bold shadow-md hover:opacity-95 transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-full bg-[#25D366] text-white text-xs sm:text-sm font-bold shadow-md hover:opacity-95 transition-all"
                 >
-                  <MessageCircle className="w-4 h-4 fill-current" />
+                  <WhatsAppIcon className="w-5 h-5" />
                   <span>Enviar resumen por WhatsApp a Mili</span>
                 </a>
 

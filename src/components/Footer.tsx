@@ -1,6 +1,7 @@
 import React from 'react';
 import { Logo } from './Logo';
 import { BUSINESS_INFO } from '../data/content';
+import { WhatsAppIcon } from './WhatsAppIcon';
 import {
   Instagram,
   Facebook,
@@ -17,7 +18,10 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
   return (
-    <footer className="bg-[#1A1A1A] text-white pt-16 pb-12 border-t border-white/10">
+    <footer
+      data-sector="SECTOR 12: Pie de Página"
+      className="bg-[#1A1A1A] text-white pt-16 pb-12 border-t border-white/10"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-white/10">
           {/* Columna 1: Marca y descripción */}
@@ -87,7 +91,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
                 <span>{BUSINESS_INFO.address}</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <Phone className="w-4 h-4 text-[#25D366] shrink-0 mt-0.5" />
+                <WhatsAppIcon className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>WhatsApp: {BUSINESS_INFO.phoneDisplay}</span>
               </li>
             </ul>

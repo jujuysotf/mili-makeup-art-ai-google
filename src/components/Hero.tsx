@@ -10,7 +10,11 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ onOpenBooking, onExploreServices }) => {
   return (
-    <section id="inicio" className="relative pt-28 lg:pt-36 pb-16 lg:pb-24 overflow-hidden bg-white">
+    <section
+      id="inicio"
+      data-sector="SECTOR 2: Portada y Hero"
+      className="relative pt-28 lg:pt-36 pb-16 lg:pb-24 overflow-hidden bg-white"
+    >
       {/* Decorative background subtle gradients */}
       <div className="absolute top-10 right-0 w-96 h-96 bg-[#FBF4F6] rounded-full filter blur-3xl opacity-70 pointer-events-none -z-10" />
       <div className="absolute bottom-0 left-10 w-80 h-80 bg-[#F4E3E8] rounded-full filter blur-3xl opacity-50 pointer-events-none -z-10" />

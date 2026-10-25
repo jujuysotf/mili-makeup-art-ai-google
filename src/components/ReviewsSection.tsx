@@ -4,7 +4,11 @@ import { Star, MessageSquareHeart, CheckCircle2 } from 'lucide-react';
 
 export const ReviewsSection: React.FC = () => {
   return (
-    <section id="opiniones" className="py-20 lg:py-24 bg-white">
+    <section
+      id="opiniones"
+      data-sector="SECTOR 9: Opiniones y Reseñas"
+      className="py-20 lg:py-24 bg-white"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Encabezado */}
         <div className="text-center max-w-2xl mx-auto mb-14">

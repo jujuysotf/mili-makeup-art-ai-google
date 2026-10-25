@@ -18,7 +18,11 @@ export const LocationSection: React.FC = () => {
   };
 
   return (
-    <section id="ubicacion" className="py-20 lg:py-28 bg-[#FBF4F6]/50 border-t border-[#E7D5DB]">
+    <section
+      id="ubicacion"
+      data-sector="SECTOR 10: Ubicación Google Maps y FAQs"
+      className="py-20 lg:py-28 bg-[#FBF4F6]/50 border-t border-[#E7D5DB]"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Encabezado */}
         <div className="text-center max-w-2xl mx-auto mb-14">

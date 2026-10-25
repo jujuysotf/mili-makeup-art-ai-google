@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { BUSINESS_INFO } from '../data/content';
 import { SERVICES_DATA } from '../data/services';
 import { buildWhatsAppUrl } from '../utils/whatsapp';
+import { WhatsAppIcon } from './WhatsAppIcon';
 import {
-  MessageCircle,
   Phone,
   Mail,
   MapPin,
@@ -38,7 +38,11 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contacto" className="py-20 lg:py-28 bg-white border-t border-[#E7D5DB]">
+    <section
+      id="contacto"
+      data-sector="SECTOR 11: Formulario de Contacto"
+      className="py-20 lg:py-28 bg-white border-t border-[#E7D5DB]"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           {/* Columna Izquierda: Información de Contacto */}
@@ -63,8 +67,8 @@ export const ContactSection: React.FC = () => {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3.5 p-4 rounded-2xl bg-[#FBF4F6] border border-[#E7D5DB] hover:border-[#F4A7C1] transition-all group"
               >
-                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#25D366] shadow-sm shrink-0">
-                  <MessageCircle className="w-5 h-5 fill-current" />
+                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm shrink-0">
+                  <WhatsAppIcon className="w-5 h-5" />
                 </div>
                 <div>
                   <span className="text-[11px] font-semibold text-[#5C5558] uppercase tracking-wider block">
@@ -215,9 +219,9 @@ export const ContactSection: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-3.5 px-6 rounded-full bg-[#1A1A1A] text-white font-semibold text-sm hover:bg-[#F4A7C1] hover:text-[#1A1A1A] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                className="w-full py-3.5 px-6 rounded-full bg-[#1A1A1A] text-white font-semibold text-sm hover:bg-[#F4A7C1] hover:text-[#1A1A1A] transition-all flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg active:scale-98 cursor-pointer"
               >
-                <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                <WhatsAppIcon className="w-5 h-5 shrink-0" />
                 <span>Enviar mensaje a WhatsApp</span>
               </button>
             </form>
