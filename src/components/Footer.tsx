@@ -56,10 +56,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenBooking }) => {
                 <a href="#servicios" className="hover:text-[#F4A7C1] transition-colors">Servicios de Maquillaje</a>
               </li>
               <li>
-                <a href="#trabajos" className="hover:text-[#F4A7C1] transition-colors">Trabajos Realizados</a>
+                <a href="#videos" className="hover:text-[#F4A7C1] transition-colors">Reels & Backstage</a>
               </li>
               <li>
-                <a href="#videos" className="hover:text-[#F4A7C1] transition-colors">Reels & Backstage</a>
+                <a href="#trabajos" className="hover:text-[#F4A7C1] transition-colors">Trabajos Realizados</a>
               </li>
               <li>
                 <a href="#escuela" className="hover:text-[#F4A7C1] transition-colors">Escuela de Maquillaje</a>

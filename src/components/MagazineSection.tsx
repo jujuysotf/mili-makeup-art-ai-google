@@ -27,13 +27,12 @@ export const MagazineSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Grilla / Carrusel Deslizable */}
-        <div className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {MAGAZINE_ARTICLES.map((article) => (
             <article
               key={article.id}
               onClick={() => setSelectedArticle(article)}
-              className="min-w-[85%] sm:min-w-0 bg-[#FBF4F6] rounded-3xl p-5 sm:p-6 border border-[#E7D5DB] hover:border-[#F4A7C1] hover:shadow-md transition-all duration-300 flex flex-col justify-between cursor-pointer group snap-center shrink-0"
+              className="w-full bg-[#FBF4F6] rounded-3xl p-5 sm:p-6 border border-[#E7D5DB] hover:border-[#F4A7C1] hover:shadow-md transition-all duration-300 flex flex-col justify-between cursor-pointer group"
             >
               <div>
                 <div className="flex items-center justify-between text-xs text-[#5C5558] mb-3">
@@ -62,10 +61,6 @@ export const MagazineSection: React.FC = () => {
             </article>
           ))}
         </div>
-
-        <p className="sm:hidden text-center text-xs text-[#5C5558] mt-2">
-          ← Deslizá para ver más notas →
-        </p>
       </div>
 
       {/* Modal Lectura */}

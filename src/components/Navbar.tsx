@@ -27,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
       setIsScrolled(window.scrollY > 20);
 
       // Simple active section spy
-      const sections = ['inicio', 'servicios', 'trabajos', 'videos', 'escuela', 'magazine', 'acerca-de', 'opiniones', 'contacto'];
+      const sections = ['inicio', 'servicios', 'videos', 'trabajos', 'escuela', 'magazine', 'acerca-de', 'opiniones', 'contacto'];
       const scrollPos = window.scrollY + 120;
 
       for (const section of sections) {
@@ -50,8 +50,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
   const navLinks = [
     { label: 'Inicio', href: '#inicio', id: 'inicio' },
     { label: 'Servicios', href: '#servicios', id: 'servicios' },
-    { label: 'Trabajos', href: '#trabajos', id: 'trabajos' },
     { label: 'Videos', href: '#videos', id: 'videos' },
+    { label: 'Trabajos', href: '#trabajos', id: 'trabajos' },
     { label: 'Escuela', href: '#escuela', id: 'escuela' },
     { label: 'Magazine', href: '#magazine', id: 'magazine' },
     { label: 'Acerca de', href: '#acerca-de', id: 'acerca-de' },

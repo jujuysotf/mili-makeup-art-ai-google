@@ -184,20 +184,42 @@ export const PORTFOLIO_DATA: PortfolioWork[] = [
 export const VIDEO_SHOWCASE = {
   instagramReelsUrl: 'https://www.instagram.com/mili_makeupart/reels/',
   instagramProfileUrl: 'https://www.instagram.com/mili_makeupart/',
+  /** Fallback si /api/reels no responde. La fuente editable es data/reels.json + gestión #gestion-reels. */
   reels: [
     {
-      id: 'v1',
-      title: 'Transformación Novia Glow & Tiara',
-      src: '/assets/C0292_1.mp4',
-      badge: 'Novias',
-      description: 'El paso a paso de preparación de piel y fijación para novia radiante.',
+      id: 'reel-de4bs6zroxE',
+      title: 'Reel Milimakeupart',
+      url: 'https://www.instagram.com/reels/De4bS6zRoxE/',
+      badge: 'Instagram',
+      description: 'Trabajo reciente en @mili_makeupart',
     },
     {
-      id: 'v2',
-      title: 'Piel Blindada & Ojos Glam',
-      src: '/assets/MAH06358 (1).MP4',
-      badge: 'Social Glam',
-      description: 'Técnica de piel blindada que dura toda la noche sin transferir.',
+      id: 'reel-de20c8lh4rd',
+      title: 'Reel Milimakeupart',
+      url: 'https://www.instagram.com/reels/De20c8Lh4rD/',
+      badge: 'Instagram',
+      description: 'Trabajo reciente en @mili_makeupart',
+    },
+    {
+      id: 'reel-deryun5uxpx',
+      title: 'Reel Milimakeupart',
+      url: 'https://www.instagram.com/reels/DeRyUn5uXPX/',
+      badge: 'Instagram',
+      description: 'Trabajo reciente en @mili_makeupart',
+    },
+    {
+      id: 'reel-dep0orwsiyn',
+      title: 'Reel Milimakeupart',
+      url: 'https://www.instagram.com/reels/DeP0OrwSIyn/',
+      badge: 'Instagram',
+      description: 'Trabajo reciente en @mili_makeupart',
+    },
+    {
+      id: 'reel-dem44ihhqhz',
+      title: 'Reel Milimakeupart',
+      url: 'https://www.instagram.com/reels/DeM44iHhQHZ/',
+      badge: 'Instagram',
+      description: 'Trabajo reciente en @mili_makeupart',
     },
   ],
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ServicesSection } from './components/ServicesSection';
@@ -14,11 +14,25 @@ import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
 import { WhatsAppFloating } from './components/WhatsAppFloating';
 import { MobileBottomBar } from './components/MobileBottomBar';
+import { ReelsAdminPage } from './components/ReelsAdminPage';
 import { ServiceItem, SchoolCourse } from './types';
 
 export default function App() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
+  const [isReelsAdmin, setIsReelsAdmin] = useState(
+    () => typeof window !== 'undefined' && window.location.hash === '#gestion-reels'
+  );
+
+  useEffect(() => {
+    const onHashChange = () => setIsReelsAdmin(window.location.hash === '#gestion-reels');
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  if (isReelsAdmin) {
+    return <ReelsAdminPage />;
+  }
 
   const handleOpenBooking = (serviceId?: string) => {
     setSelectedServiceId(serviceId);
@@ -71,16 +85,15 @@ export default function App() {
         <ServicesSection onSelectService={handleSelectService} />
 
         {/* ============================================================== */}
-        {/* SECTOR 4: PORTFOLIO DE LOOKS REALIZADOS                        */}
+        {/* VIDEOS & REELS DE INSTAGRAM (entre Servicios y Portfolio)      */}
+        {/* ============================================================== */}
+        <VideoReelsSection />
+
+        {/* ============================================================== */}
+        {/* PORTFOLIO DE LOOKS REALIZADOS                                  */}
         {/* Galería con filtros por categoría, carrusel y visor lightbox   */}
         {/* ============================================================== */}
         <PortfolioSection onBookRelatedService={handleOpenBooking} />
-
-        {/* ============================================================== */}
-        {/* SECTOR 5: VIDEOS & REELS DE INSTAGRAM                          */}
-        {/* Reproductores de backstage y enlace a grilla de reels oficial  */}
-        {/* ============================================================== */}
-        <VideoReelsSection />
 
         {/* ============================================================== */}
         {/* SECTOR 6: ESCUELA DE MAQUILLAJE & FORMACIÓN                    */}

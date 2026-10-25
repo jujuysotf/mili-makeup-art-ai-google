@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useAutoCarousel } from '../utils/useAutoCarousel';
 import { SERVICES_DATA } from '../data/services';
 import { ServiceCategory, ServiceItem } from '../types';
 import { getServiceInquiryUrl } from '../utils/whatsapp';
@@ -26,6 +27,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
   const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
   const carouselRef = useRef<HTMLDivElement>(null);
+  useAutoCarousel(carouselRef, viewMode === 'carousel');
 
   const categories: { id: ServiceCategory | 'todos'; label: string }[] = [
     { id: 'todos', label: 'Todos' },
@@ -106,10 +108,10 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({ onSelectServic
                     ? 'bg-[#1A1A1A] text-white shadow-2xs'
                     : 'text-[#5C5558] hover:text-[#1A1A1A]'
                 }`}
-                title="Vista carrusel deslizable"
+                title="Ver de a una, deslizando"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span>Carrusel</span>
+                <span>Deslizar</span>
               </button>
               <button
                 onClick={() => setViewMode('grid')}

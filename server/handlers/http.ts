@@ -4,6 +4,7 @@ export async function runNodeHandler(request: Request, handler: NodeHandler) {
   const url = new URL(request.url);
   let statusCode = 200;
   let payload: unknown = null;
+  const responseHeaders = new Headers();
 
   const req = {
     url: `${url.pathname}${url.search}`,
@@ -29,8 +30,12 @@ export async function runNodeHandler(request: Request, handler: NodeHandler) {
     json(body: unknown) {
       payload = body;
     },
+    setHeader(name: string, value: string) {
+      responseHeaders.set(name, value);
+    },
   };
 
   await handler(req, res);
-  return Response.json(payload, { status: statusCode });
+  responseHeaders.set('Content-Type', 'application/json; charset=utf-8');
+  return new Response(JSON.stringify(payload), { status: statusCode, headers: responseHeaders });
 }

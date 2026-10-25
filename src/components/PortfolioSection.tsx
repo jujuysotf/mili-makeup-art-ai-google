@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useAutoCarousel } from '../utils/useAutoCarousel';
 import { PORTFOLIO_DATA } from '../data/portfolio';
 import { PortfolioCategory, PortfolioWork } from '../types';
 import { ImageWithFallback } from './ImageWithFallback';
@@ -26,6 +27,7 @@ export const PortfolioSection: React.FC<PortfolioSectionProps> = ({ onBookRelate
   const [currentImageIdx, setCurrentImageIdx] = useState(0);
   const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
   const carouselRef = useRef<HTMLDivElement>(null);
+  useAutoCarousel(carouselRef, viewMode === 'carousel');
 
   const categories: { id: PortfolioCategory; label: string }[] = [
     { id: 'todos', label: 'Todos' },
@@ -119,7 +121,7 @@ export const PortfolioSection: React.FC<PortfolioSectionProps> = ({ onBookRelate
                 }`}
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
-                <span>Carrusel</span>
+                <span>Deslizar</span>
               </button>
               <button
                 onClick={() => setViewMode('grid')}
