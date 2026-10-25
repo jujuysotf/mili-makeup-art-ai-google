@@ -94,3 +94,12 @@ export interface UserProfile {
   phone?: string;
   isGuest: boolean;
 }
+
+export interface ClientUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  phone?: string;
+  provider: 'google' | 'guest';
+}

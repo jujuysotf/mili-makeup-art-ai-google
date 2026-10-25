@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { SERVICES_DATA } from '../data/services';
-import { BookingConfirmation, BookingData, ServiceItem, UserProfile } from '../types';
+import { BookingConfirmation, BookingData, ClientUser, ServiceItem } from '../types';
+import {
+  createGoogleClientUser,
+  createGuestClientUser,
+  getStoredClientUser,
+  removeClientUser,
+  saveClientUser,
+} from '../utils/auth';
+import { signInWithGoogleAccount } from '../utils/googleAuth';
 import { BUSINESS_INFO } from '../data/content';
 import {
   generateDailyTimeSlots,
@@ -27,6 +35,7 @@ import {
   Download,
   AlertCircle,
   ShieldCheck,
+  LogOut,
 } from 'lucide-react';
 
 interface BookingModalProps {
@@ -35,7 +44,6 @@ interface BookingModalProps {
   initialServiceId?: string;
 }
 
-const LOCAL_STORAGE_USER_KEY = 'milimakeupart_client_user';
 const LOCAL_STORAGE_BOOKINGS_KEY = 'milimakeupart_bookings_list';
 
 export const BookingModal: React.FC<BookingModalProps> = ({
@@ -65,7 +73,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [clientPhone, setClientPhone] = useState('');
   const [clientEmail, setClientEmail] = useState('');
   const [clientNotes, setClientNotes] = useState('');
-  const [isGuest, setIsGuest] = useState(true);
+  const [clientUser, setClientUser] = useState<ClientUser | null>(null);
+  const [authChoice, setAuthChoice] = useState<'google' | 'guest'>('guest');
+  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
   // Confirmation result
   const [confirmedBooking, setConfirmedBooking] = useState<BookingConfirmation | null>(null);
@@ -82,18 +92,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
   // Cargar usuario guardado previamente en el navegador
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-      if (saved) {
-        const user: UserProfile = JSON.parse(saved);
-        if (user.name) setClientName(user.name);
-        if (user.phone) setClientPhone(user.phone);
-        if (user.email) setClientEmail(user.email);
-        setIsGuest(user.isGuest ?? true);
-      }
-    } catch {
-      // Ignorar error de parseo
-    }
+    const user = getStoredClientUser();
+    if (!user) return;
+    setClientUser(user);
+    setAuthChoice(user.provider);
+    if (user.name) setClientName(user.name);
+    if (user.phone) setClientPhone(user.phone);
+    if (user.email) setClientEmail(user.email);
   }, []);
 
   // Calcular slots disponibles para la fecha y duración elegida
@@ -150,20 +155,41 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Manejo de Login con Google simulado / estándar de yourplace
-  const handleGoogleSignIn = () => {
-    // Si la clienta usa Google Sign-In simulado
-    const dummyGoogleUser: UserProfile = {
-      name: clientName || 'Clienta Google',
-      email: clientEmail || 'clienta@gmail.com',
-      phone: clientPhone || '+54 381 4000000',
-      isGuest: false,
-    };
-    setClientName(dummyGoogleUser.name);
-    setClientEmail(dummyGoogleUser.email);
-    setClientPhone(dummyGoogleUser.phone || '');
-    setIsGuest(false);
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(dummyGoogleUser));
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsGoogleSigningIn(true);
+      setErrorMessage('');
+      const profile = await signInWithGoogleAccount();
+      const user = createGoogleClientUser(profile);
+      if (clientPhone) user.phone = clientPhone;
+      saveClientUser(user);
+      setClientUser(user);
+      setAuthChoice('google');
+      setClientName(user.name);
+      setClientEmail(user.email);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'No se pudo iniciar sesión con Google.';
+      console.error('Google sign-in error:', err);
+      setErrorMessage(message);
+    } finally {
+      setIsGoogleSigningIn(false);
+    }
+  };
+
+  const handleChooseGuest = () => {
+    setAuthChoice('guest');
+    setErrorMessage('');
+    const guest = createGuestClientUser(clientName || 'Invitada', clientEmail, clientPhone);
+    setClientUser(guest);
+  };
+
+  const handleLogout = () => {
+    removeClientUser();
+    setClientUser(null);
+    setAuthChoice('guest');
+    setClientName('');
+    setClientEmail('');
+    setClientPhone('');
   };
 
   const handleConfirmBooking = async (e: React.FormEvent) => {
@@ -180,14 +206,16 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     setIsSubmitting(true);
     setErrorMessage('');
 
-    // Guardar perfil del usuario en localStorage
-    const userProfile: UserProfile = {
-      name: clientName,
-      phone: clientPhone,
-      email: clientEmail,
-      isGuest,
+    const savedUser: ClientUser = {
+      id: clientUser?.id || `${authChoice}-${Date.now()}`,
+      name: clientName.trim(),
+      email: clientEmail.trim(),
+      avatar: authChoice === 'google' ? clientUser?.avatar : undefined,
+      phone: clientPhone.trim(),
+      provider: authChoice,
     };
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(userProfile));
+    saveClientUser(savedUser);
+    setClientUser(savedUser);
 
     // Código de reserva amigable
     const randomCode = Math.floor(1000 + Math.random() * 9000);
@@ -549,36 +577,80 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 </div>
               </div>
 
-              {/* Botón de Autenticación con Google (yourplace pattern) */}
-              <div className="p-4 rounded-2xl bg-white border border-[#E7D5DB] text-center">
-                <p className="text-xs text-[#5C5558] mb-2.5">
-                  Podés identificarte con tu cuenta de Google o completar como invitada:
-                </p>
-                <button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full border border-[#E7D5DB] text-xs font-semibold text-[#1A1A1A] hover:bg-[#FBF4F6] transition-colors"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                    />
-                  </svg>
-                  <span>{isGuest ? 'Identificarme con Google' : `Identificada como: ${clientName}`}</span>
-                </button>
+              <div className="p-4 rounded-2xl bg-[#FBF4F6] border border-[#E7D5DB] space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#1A1A1A] flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-[#F4A7C1]" />
+                    Identificación de la clienta
+                  </span>
+                  {clientUser && (
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="text-[11px] text-[#5C5558] hover:text-[#1A1A1A] flex items-center gap-1 font-semibold"
+                    >
+                      <LogOut className="w-3 h-3" />
+                      Cambiar / Salir
+                    </button>
+                  )}
+                </div>
+
+                {clientUser?.provider === 'google' ? (
+                  <div className="bg-white p-3 rounded-xl border border-[#E7D5DB] flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {clientUser.avatar ? (
+                        <img
+                          src={clientUser.avatar}
+                          alt=""
+                          className="w-8 h-8 rounded-full object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-[#4285F4] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                          G
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-[#1A1A1A] truncate">{clientUser.name}</div>
+                        <div className="text-[11px] text-[#5C5558] truncate">
+                          {clientUser.email} · Cuenta Google conectada
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] bg-[#E6F4EA] text-[#137333] font-bold px-2 py-0.5 rounded-full shrink-0">
+                      Verificada
+                    </span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={handleGoogleSignIn}
+                      disabled={isGoogleSigningIn}
+                      className="p-3 rounded-xl bg-white border border-[#E7D5DB] hover:border-[#4285F4] flex items-center justify-center gap-2 text-xs font-bold text-[#1A1A1A] transition-all disabled:opacity-60 disabled:cursor-wait"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                      </svg>
+                      <span>{isGoogleSigningIn ? 'Conectando...' : 'Iniciar sesión con Google'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleChooseGuest}
+                      className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+                        authChoice === 'guest'
+                          ? 'bg-[#1A1A1A] text-white border-[#1A1A1A]'
+                          : 'bg-white text-[#5C5558] border-[#E7D5DB] hover:bg-[#FBF4F6]'
+                      }`}
+                    >
+                      <User className="w-3.5 h-3.5" />
+                      <span>Entrar como invitada</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Formulario de Datos */}

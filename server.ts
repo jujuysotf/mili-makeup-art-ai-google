@@ -10,6 +10,11 @@ import {
 
 dotenv.config();
 
+if (process.env.ALLOW_INSECURE_TLS === '1') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  console.warn('[dev] ALLOW_INSECURE_TLS=1 — verificación TLS desactivada');
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
