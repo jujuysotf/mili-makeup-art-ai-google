@@ -1,0 +1,6 @@
+{
+  "name": "Studio de Maquillaje & Belleza",
+  "description": "Plataforma de maquillaje profesional, catálogo de productos de belleza, servicios y reservas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
